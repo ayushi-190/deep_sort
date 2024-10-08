@@ -28,7 +28,7 @@ def _pdist(a, b):
     return r2
 
 
-def _cosine_distance(a, b, data_is_normalized=False):
+def _cosine_distance(a, b):
     """Compute pair-wise cosine distance between points in `a` and `b`.
 
     Parameters
@@ -48,10 +48,17 @@ def _cosine_distance(a, b, data_is_normalized=False):
         contains the squared distance between `a[i]` and `b[j]`.
 
     """
-    if not data_is_normalized:
-        a = np.asarray(a) / np.linalg.norm(a, axis=1, keepdims=True)
-        b = np.asarray(b) / np.linalg.norm(b, axis=1, keepdims=True)
+    a = np.asarray(a)
+    b = np.asarray(b)
+    
+    # Avoid division by zero by checking for zero vectors
+    if np.linalg.norm(a, axis=1, keepdims=True).all() == 0 or np.linalg.norm(b, axis=1, keepdims=True).all() == 0:
+        return np.ones((a.shape[0], b.shape[0]))  # Assign large distance if invalid
+    
+    a = a / np.linalg.norm(a, axis=1, keepdims=True)
+    b = b / np.linalg.norm(b, axis=1, keepdims=True)
     return 1. - np.dot(a, b.T)
+
 
 
 def _nn_euclidean_distance(x, y):
